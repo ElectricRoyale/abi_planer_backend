@@ -15,42 +15,42 @@ def get_connection():
         cursorclass=pymysql.cursors.DictCursor
     )
 
-def visitors():
+def students():
     connection = get_connection()
     cursor = connection.cursor()
-    cursor.execute('SELECT * FROM abiball_planer.visitors;')
+    cursor.execute('SELECT * FROM students;')
     result = cursor.fetchall()
     cursor.close()
     connection.close()
-    return {"type": "getVisitors", "args": result}
+    return {"type": "getStudents", "args": result}
 
-def single_visitor(condition):
+def single_student(condition):
     connection = get_connection()
     cursor = connection.cursor()
     conditions = [f"{column} = %s" for column in condition.keys()]
-    query = f'SELECT * FROM abiball_planer.visitors WHERE {" AND ".join(conditions)};'
+    query = f'SELECT * FROM students WHERE {" AND ".join(conditions)};'
     cursor.execute(query, tuple(condition.values()))
     result = cursor.fetchall()
     cursor.close()
     connection.close()
     return {"type": "getSingleVisitor", "args": result, "condition": condition}
 
-def insert_visitor(firstname, lastname, email, number_of_tickets, number_of_hard_cards=0, neighbour_wish=None,
+def insert_student(firstname, lastname, email, number_of_tickets, number_of_hard_cards=0, neighbour_wish=None,
                    meat=0, vegetarian=0, vegan=0, allergens=None, place_number=None, money=0, payed=0):
     connection = get_connection()
     cursor = connection.cursor()
     
-    cursor.execute('SELECT * FROM abiball_planer.visitors WHERE firstname = %s AND lastname = %s;', [firstname, lastname])
+    cursor.execute('SELECT * FROM students WHERE firstname = %s AND lastname = %s;', [firstname, lastname])
     if cursor.fetchone() is None:
         cursor.execute(
-            'INSERT INTO abiball_planer.visitors (firstname, lastname, email, number_of_tickets, number_of_hard_cards, '
+            'INSERT INTO students (firstname, lastname, email, number_of_tickets, number_of_hard_cards, '
             'neighbour_wish, meat, vegetarian, vegan, allergens, place_number, money, payed) '
             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);',
             (firstname, lastname, email, number_of_tickets, number_of_hard_cards, neighbour_wish, meat,
              vegetarian, vegan, allergens, place_number, money, payed)
         )
         connection.commit()
-        cursor.execute('SELECT * FROM abiball_planer.visitors WHERE firstname = %s AND lastname = %s;', [firstname, lastname])
+        cursor.execute('SELECT * FROM students WHERE firstname = %s AND lastname = %s;', [firstname, lastname])
         result = cursor.fetchall()
         answer = {"type": "insert", "args": result}
     else:
@@ -67,14 +67,14 @@ def insert_visitor(firstname, lastname, email, number_of_tickets, number_of_hard
     connection.close()
     return answer
 
-def update_visitor(update_data, condition):
+def update_student(update_data, condition):
     connection = get_connection()
     cursor = connection.cursor()
     set_values = [f"{column} = %s" for column in update_data.keys()]
     conditions = [f"{column} = %s" for column in condition.keys()]
     args = list(update_data.values()) + list(condition.values())
     
-    query = f"UPDATE abiball_planer.visitors SET {', '.join(set_values)} WHERE {' AND '.join(conditions)};"
+    query = f"UPDATE students SET {', '.join(set_values)} WHERE {' AND '.join(conditions)};"
     cursor.execute(query, tuple(args))
     connection.commit()
     
@@ -88,22 +88,22 @@ def update_visitor(update_data, condition):
         where_condition_args.append(update_data.get('lastname'))
         
     if where_condition:
-        cursor.execute(f'SELECT * FROM abiball_planer.visitors WHERE {" AND ".join(where_condition)};', tuple(where_condition_args))
+        cursor.execute(f'SELECT * FROM students WHERE {" AND ".join(where_condition)};', tuple(where_condition_args))
     else:
-        cursor.execute(f'SELECT * FROM abiball_planer.visitors WHERE {" AND ".join(conditions)};', tuple(condition.values()))
+        cursor.execute(f'SELECT * FROM students WHERE {" AND ".join(conditions)};', tuple(condition.values()))
     
     result = cursor.fetchall()
     cursor.close()
     connection.close()
     return {"type": "update", "args": result, "condition": condition}
 
-def delete_visitor(condition):
+def delete_student(condition):
     connection = get_connection()
     cursor = connection.cursor()
     conditions = [f"{column} = %s" for column in condition.keys()]
-    query = f'DELETE FROM abiball_planer.visitors WHERE {" AND ".join(conditions)};'
+    query = f'DELETE FROM students WHERE {" AND ".join(conditions)};'
     
-    cursor.execute(f'SELECT * FROM abiball_planer.visitors WHERE {" AND ".join(conditions)};', tuple(condition.values()))
+    cursor.execute(f'SELECT * FROM students WHERE {" AND ".join(conditions)};', tuple(condition.values()))
     result = cursor.fetchall()
     
     cursor.execute(query, tuple(condition.values()))
