@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict
 import json
 import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
